@@ -12,7 +12,7 @@ This folder deploys Ansible Automation Platform 2.6 on OpenShift through Argo CD
 
 ## Secret patterns
 
-Choose one approach and keep plaintext secrets out of Git.
+Choose one approach Sealed Secrets or External Secrets.
 
 - Sealed Secrets: `secrets/sealedsecret-aap-admin-password-prod.yaml`
 - External Secrets: `secrets/externalsecret-aap-admin-password-prod.yaml`

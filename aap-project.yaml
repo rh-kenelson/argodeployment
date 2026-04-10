@@ -6,7 +6,7 @@ metadata:
 spec:
   description: Project scope for Ansible Automation Platform 2.6
   sourceRepos:
-    - https://github.com/your-org/your-gitops-repo.git
+    - https://github.com/rh-kenelson/argodeployment.git
   destinations:
     - namespace: aap
       server: https://kubernetes.default.svc
