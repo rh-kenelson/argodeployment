@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aap-26
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: aap
+  source:
+    repoURL: https://github.com/your-org/your-gitops-repo.git
+    targetRevision: main
+    path: clusters/openshift/apps/aap-26
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aap
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+  revisionHistoryLimit: 10

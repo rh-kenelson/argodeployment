@@ -1,0 +1,13 @@
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: aap
+  namespace: aap
+spec:
+  # Replace with your AAP admin password secret name.
+  # Create this secret out-of-band (for example, External Secrets or Sealed Secrets).
+  admin_password_secret: aap-admin-password
+
+  # Tune these values for your OpenShift sizing requirements.
+  image_pull_policy: IfNotPresent
+  no_log: false
