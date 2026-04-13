@@ -12,13 +12,16 @@ This folder deploys Ansible Automation Platform 2.6 on OpenShift through Argo CD
 
 ## Secret patterns
 
-Choose one approach Sealed Secrets or External Secrets.
+Choose one approach and keep plaintext secrets out of Git.
 
 - Sealed Secrets: `secrets/sealedsecret-aap-admin-password-prod.yaml`
-- External Secrets: `secrets/externalsecret-aap-admin-password-prod.yaml`
+- HashiCorp Vault + ESO:
+  - `secrets/secretstore-vault.yaml`
+  - `secrets/externalsecret-aap-admin-password-prod.yaml`
 
 ## Notes
 
 - Current root `kustomization.yaml` points to `overlays/prod`.
 - Set Argo CD `Application.spec.source.path` to this folder: `clusters/openshift/apps/aap-26`.
 - Verify AAP CR fields against your installed operator version.
+- For Vault, update URL, KV path, auth mount, and role in `secrets/secretstore-vault.yaml`.

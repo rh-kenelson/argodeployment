@@ -3,6 +3,8 @@ kind: Kustomization
 namespace: aap
 resources:
   - ../../base
+  - ../../secrets/secretstore-vault.yaml
+  - ../../secrets/externalsecret-aap-admin-password-prod.yaml
 patches:
   - path: patch-aap-instance.yaml
     target:
