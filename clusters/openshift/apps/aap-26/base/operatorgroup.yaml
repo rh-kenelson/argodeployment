@@ -3,6 +3,8 @@ kind: OperatorGroup
 metadata:
   name: aap-operatorgroup
   namespace: aap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   targetNamespaces:
     - aap
