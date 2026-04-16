@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: aap
+resources:
+  - ../../base
+  # Sealed Secret for LDAP bind password (extra_settings_secret).
+  # Fill in the kubeseal output in this file before enabling it here.
+  # See: ../../secrets/sealedsecret-aap-ldap-settings-minimal.yaml
+  # - ../../secrets/sealedsecret-aap-ldap-settings-minimal.yaml
+patches:
+  - path: patch-aap-instance.yaml
+    target:
+      group: aap.ansible.com
+      version: v1alpha1
+      kind: AnsibleAutomationPlatform
+      name: aap

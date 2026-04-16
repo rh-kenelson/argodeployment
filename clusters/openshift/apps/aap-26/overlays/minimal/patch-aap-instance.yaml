@@ -1,0 +1,100 @@
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: aap
+  namespace: aap
+spec:
+  # Replace with your secret name for this environment.
+  admin_password_secret: aap-admin-password-minimal
+  image_pull_policy: IfNotPresent
+  no_log: false
+
+  # Only Platform Gateway and Automation Controller are deployed.
+  hub:
+    disabled: true
+  eda:
+    disabled: true
+
+  controller:
+    # -----------------------------------------------------------------------
+    # Red Hat subscription manifest (license)
+    # -----------------------------------------------------------------------
+    # Create the secret once, out-of-band:
+    #   oc create secret generic aap-manifest \
+    #     --from-file=manifest.zip=/path/to/manifest.zip \
+    #     -n aap
+    subscription_manifest: aap-manifest
+
+    # -----------------------------------------------------------------------
+    # LDAP — CA certificate
+    # -----------------------------------------------------------------------
+    # Required when connecting to ldaps:// or using StartTLS.
+    # Create the secret once, out-of-band:
+    #   oc create secret generic aap-ldap-cacert \
+    #     --from-file=ldap-ca.crt=/path/to/ldap-ca.crt \
+    #     -n aap
+    # Remove this field if using plain ldap:// without TLS.
+    ldap_cacert_secret: aap-ldap-cacert
+
+    # -----------------------------------------------------------------------
+    # LDAP — non-sensitive settings
+    # -----------------------------------------------------------------------
+    # Values are Python literals/expressions; strings need inner quotes.
+    # Adjust DNs, attributes, and group rules to match your directory schema.
+    # Full reference: https://django-auth-ldap.readthedocs.io/en/latest/reference.html
+    extra_settings:
+      - setting: AUTH_LDAP_SERVER_URI
+        value: '"ldaps://ldap.example.com:636"'
+
+      - setting: AUTH_LDAP_CONNECTION_OPTIONS
+        value: "{ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_DEMAND}"
+
+      # Service account DN used to bind and search the directory.
+      - setting: AUTH_LDAP_BIND_DN
+        value: '"cn=svc-aap,ou=service-accounts,dc=example,dc=com"'
+
+      # User lookup — adjust the base DN and filter attribute
+      # (uid for OpenLDAP / sAMAccountName for Active Directory).
+      - setting: AUTH_LDAP_USER_SEARCH
+        value: "LDAPSearch('ou=users,dc=example,dc=com', ldap.SCOPE_SUBTREE, '(sAMAccountName=%(user)s)')"
+
+      # Map LDAP attributes to AAP user fields.
+      - setting: AUTH_LDAP_USER_ATTR_MAP
+        value: "{'first_name': 'givenName', 'last_name': 'sn', 'email': 'mail'}"
+
+      # Group lookup.
+      - setting: AUTH_LDAP_GROUP_SEARCH
+        value: "LDAPSearch('ou=groups,dc=example,dc=com', ldap.SCOPE_SUBTREE, '(objectClass=group)')"
+
+      # Use MemberDNGroupType for Active Directory; GroupOfNamesType for OpenLDAP.
+      - setting: AUTH_LDAP_GROUP_TYPE
+        value: "MemberDNGroupType()"
+
+      # Only members of this group can log in. Remove to allow all LDAP users.
+      - setting: AUTH_LDAP_REQUIRE_GROUP
+        value: '"cn=aap-users,ou=groups,dc=example,dc=com"'
+
+      # Grant AAP superuser to members of this group.
+      - setting: AUTH_LDAP_USER_FLAGS_BY_GROUP
+        value: "{'is_superuser': ['cn=aap-admins,ou=groups,dc=example,dc=com']}"
+
+      # Sync LDAP group membership into AAP on every login.
+      - setting: AUTH_LDAP_MIRROR_GROUPS
+        value: "True"
+
+    # -----------------------------------------------------------------------
+    # LDAP — sensitive settings (bind password)
+    # -----------------------------------------------------------------------
+    # The operator merges this secret's key=value pairs into Django settings
+    # alongside extra_settings above, so the bind password never appears in
+    # Git. The secret must contain at minimum:
+    #
+    #   AUTH_LDAP_BIND_PASSWORD: <ldap-bind-password>
+    #
+    # Use the Sealed Secret template at:
+    #   secrets/sealedsecret-aap-ldap-settings-minimal.yaml
+    # or create the secret out-of-band:
+    #   oc create secret generic aap-ldap-settings-minimal \
+    #     --from-literal=AUTH_LDAP_BIND_PASSWORD='<password>' \
+    #     -n aap
+    extra_settings_secret: aap-ldap-settings-minimal

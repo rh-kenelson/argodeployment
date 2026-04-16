@@ -30,7 +30,7 @@ Use your own Git remote. Replace every placeholder URL with yours.
 - **`aap-project.yaml`** — set `spec.sourceRepos` to your repo URL(s).
 - **`aap26-application.yaml`** — set `spec.source.repoURL`, `targetRevision`, and optionally `spec.source.path`:
   - Default path `clusters/openshift/apps/aap-26` resolves through root `kustomization.yaml` to **`overlays/prod`**.
-  - For another environment, point `path` at `clusters/openshift/apps/aap-26/overlays/dev` or `.../overlays/stage`.
+  - For another environment, point `path` at `clusters/openshift/apps/aap-26/overlays/dev`, `.../overlays/stage`, or `.../overlays/minimal` (Platform Gateway + Automation Controller only — Hub and EDA disabled).
 - **`clusters/openshift/apps/aap-26/overlays/prod/`** — Vault-backed secrets live here (`secretstore-vault.yaml`, `externalsecret-aap-admin-password-prod.yaml`) so Argo’s Kustomize build stays within each overlay directory. Adjust Vault URL, mount path, role, and remote key to match your environment.
 - **`clusters/openshift/apps/aap-26/base/subscription.yaml`** — confirm `channel` and operator `name` match your catalog.
 
